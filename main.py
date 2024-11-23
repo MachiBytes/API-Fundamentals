@@ -11,7 +11,7 @@ def read_root():
 
 @app.get("/books")
 def get_books():
-    books = [{"title": book.title, "author": book.author} for book in Book.select()]
+    books = [{"id": book.id, "title": book.title, "author": book.author} for book in Book.select()]
     response = {
         "message": "Successfully retrieved all books.",
         "books": books
