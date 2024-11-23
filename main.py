@@ -1,8 +1,33 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from database import Book, BookInput
 
 app = FastAPI()
+
+API_KEY = "this_is_our_secret_key"
+
+class AuthenticationMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        print(request.headers)
+        auth_header = request.headers.get("authorization")
+        
+        # Check if the header exists and follows the "Bearer <token>" format
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JSONResponse(content={"error": "Missing or invalid Authentication header"}, status_code=401)
+        
+        # Extract the token
+        token = auth_header.split(" ")[1]
+        
+        # Validate the token
+        if token != API_KEY:
+            return JSONResponse(content={"error": "Invalid API key"}, status_code=401)
+        
+        # Proceed to the next request handler
+        return await call_next(request)
+
+# Add the middleware to the app
+app.add_middleware(AuthenticationMiddleware)
 
 @app.get("/")
 def read_root():
