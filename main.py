@@ -11,7 +11,7 @@ def read_root():
 
 @app.get("/books")
 def get_books():
-    books = [{"title": book.title, "author": book.author} for book in Book.select()]
+    books = [{"id": book.id, "title": book.title, "author": book.author} for book in Book.select()]
     response = {
         "message": "Successfully retrieved all books.",
         "books": books
@@ -34,4 +34,14 @@ def get_book(book_id: int):
 def create_book(book: BookInput):
     new_book = Book.create(title=book.title, author=book.author)
     return {"id": new_book.id, "title": new_book.title}
+
+@app.put("/books/{book_id}")
+def update_book(book_id: int, book: BookInput):
+    existing_book = Book.get_or_none(Book.id == book_id)
+    if not existing_book:
+        return {"error": "Book not found"}, 404
+    existing_book.title = book.title
+    existing_book.author = book.author
+    existing_book.save()
+    return {"message": "Book updated", "book": existing_book}
 
