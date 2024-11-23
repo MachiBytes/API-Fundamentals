@@ -27,7 +27,7 @@ def search_books(author: str):
 def get_book(book_id: int):
     book = Book.get_or_none(Book.id == book_id)
     if not book:
-        return {"error": "Book not found"}, 404
+        return JSONResponse(content={"error": "Book not found"}, status_code=404)
     return {"title": book.title, "author": book.author}
 
 @app.post("/books")
@@ -39,9 +39,16 @@ def create_book(book: BookInput):
 def update_book(book_id: int, book: BookInput):
     existing_book = Book.get_or_none(Book.id == book_id)
     if not existing_book:
-        return {"error": "Book not found"}, 404
+        return JSONResponse(content={"error": "Book not found"}, status_code=404)
     existing_book.title = book.title
     existing_book.author = book.author
     existing_book.save()
     return {"message": "Book updated", "book": existing_book}
 
+@app.delete("/books/{book_id}")
+def delete_book(book_id: int):
+    book = Book.get_or_none(Book.id == book_id)
+    if not book:
+        return JSONResponse(content={"error": "Book not found"}, status_code=404)
+    book.delete_instance()
+    return {"message": "Book deleted"}
