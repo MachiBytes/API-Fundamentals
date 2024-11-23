@@ -11,7 +11,7 @@ def read_root():
 
 @app.get("/books")
 def get_books():
-    books = [{"title": book.title, "author": book.author} for book in Book.select()]
+    books = [{"id": book.id, "title": book.title, "author": book.author} for book in Book.select()]
     response = {
         "message": "Successfully retrieved all books.",
         "books": books
@@ -22,7 +22,7 @@ def get_books():
 def get_book(book_id: int):
     book = Book.get_or_none(Book.id == book_id)
     if not book:
-        return {"error": "Book not found"}, 404
+        return JSONResponse(content={"error": "Book not found"}, status_code=404)
     return {"title": book.title, "author": book.author}
 
 @app.get("/books/search")
